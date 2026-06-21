@@ -967,23 +967,25 @@
     showToast('✅ Evento salvo — abra o arquivo .ics para confirmar!');
   });
 
-  // Como Chegar — Geolocalização
+  // Como Chegar — abre Google Maps direto (funciona no celular e desktop)
   document.getElementById('btnComoChegar').addEventListener('click', () => {
     const dest = `${CONFIG.destLat},${CONFIG.destLng}`;
-    const fallbackUrl = `https://www.google.com/maps/dir//${dest}`;
-    if (!navigator.geolocation) { window.open(fallbackUrl, '_blank', 'noopener,noreferrer'); return; }
-    showToast('📍 Obtendo sua localização…', 5000);
-    navigator.geolocation.getCurrentPosition(
-      ({ coords }) => {
-        window.open(`https://www.google.com/maps/dir/${coords.latitude},${coords.longitude}/${dest}`, '_blank', 'noopener,noreferrer');
-        showToast('🗺️ Rota aberta no Google Maps!');
-      },
-      (err) => {
-        window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
-        if (err.code === err.PERMISSION_DENIED) showToast('⚠️ Localização negada — abrindo rota sem origem.', 4000);
-      },
-      { timeout: 8000, maximumAge: 60000 }
-    );
+    const isMobile = /Android|iPhone|iPad|iPod/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // No celular: tenta abrir o app nativo via link direto
+      window.location.href = `https://maps.google.com/maps?daddr=${dest}`;
+    } else {
+      // No desktop: abre em nova aba
+      const a = document.createElement('a');
+      a.href = `https://www.google.com/maps/dir//${dest}`;
+      a.target = '_blank';
+      a.rel = 'noopener noreferrer';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      showToast('🗺️ Rota aberta no Google Maps!');
+    }
   });
 
   // Gallery

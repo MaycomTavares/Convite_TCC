@@ -248,6 +248,53 @@
     .hero-message em     { font-family: var(--font-h); font-size: 1.05em; }
     .hero-message strong { color: var(--text); font-weight: 600; }
 
+    /* ── TERMINAL ── */
+    .terminal-wrap {
+      width: 100%; max-width: 600px;
+      margin-bottom: 36px;
+      animation: fadeUp .85s .46s var(--ease) both;
+    }
+    .terminal {
+      background: #0d1117;
+      border: 1px solid rgba(201,168,76,.30);
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 20px 60px rgba(0,0,0,.55), 0 0 0 1px rgba(255,255,255,.04);
+      text-align: left;
+    }
+    .terminal-bar {
+      background: #161b22;
+      border-bottom: 1px solid rgba(255,255,255,.06);
+      padding: 10px 14px;
+      display: flex; align-items: center; gap: 7px;
+    }
+    .t-dot { width: 12px; height: 12px; border-radius: 50%; }
+    .t-dot.r { background: #ff5f57; }
+    .t-dot.y { background: #febc2e; }
+    .t-dot.g { background: #28c840; }
+    .terminal-title {
+      flex: 1; text-align: center;
+      font-size: .72rem; color: rgba(255,255,255,.3);
+      letter-spacing: .06em; font-family: monospace;
+    }
+    .terminal-body {
+      padding: 18px 20px 20px;
+      font-family: 'Fira Code', 'Cascadia Code', 'Courier New', monospace;
+      font-size: .82rem; line-height: 1.75;
+      min-height: 200px;
+    }
+    .t-comment  { color: #6a9955; }
+    .t-kw       { color: #c586c0; }
+    .t-var      { color: #9cdcfe; }
+    .t-str      { color: #ce9178; }
+    .t-prop     { color: #4ec9b0; }
+    .t-num      { color: #b5cea8; }
+    .t-fn       { color: #dcdcaa; }
+    .t-gold     { color: #e8c97a; font-weight: 600; }
+    .t-green    { color: #4caf82; }
+    .t-cursor   { display: inline-block; width: 2px; height: 1em; background: var(--gold); vertical-align: text-bottom; animation: blink .9s step-end infinite; margin-left: 1px; }
+    @keyframes blink { 0%,100% { opacity:1; } 50% { opacity:0; } }
+
     /* ── INFO CARDS ── */
     .info-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 14px; width: 100%; max-width: 680px; margin-bottom: 20px; animation: fadeUp .85s .48s var(--ease) both; }
     @media (max-width: 600px) { .info-grid { grid-template-columns: 1fr 1fr; } .info-grid .info-card:last-child { grid-column: 1 / -1; } }
@@ -501,6 +548,19 @@
       <em>"Status do projeto: concluído ✅"</em><br>
       <strong>Agora só falta você nessa celebração!</strong>
     </p>
+
+    <!-- Terminal animado -->
+    <div class="terminal-wrap">
+      <div class="terminal" role="img" aria-label="Trecho de código comemorativo">
+        <div class="terminal-bar">
+          <span class="t-dot r"></span>
+          <span class="t-dot y"></span>
+          <span class="t-dot g"></span>
+          <span class="terminal-title">formatura.js</span>
+        </div>
+        <div class="terminal-body" id="terminalBody"></div>
+      </div>
+    </div>
 
     <!-- Info cards -->
     <div class="info-grid" role="list">
@@ -969,6 +1029,65 @@
     if (e.key === 'ArrowLeft') lbGo(-1);
     if (e.key === 'ArrowRight') lbGo(+1);
   });
+
+  // ── Terminal animado ──
+  (function() {
+    const lines = [
+      { html: '<span class="t-comment">// ADS · Fatec Garça · Turma 2026</span>' },
+      { html: '' },
+      { html: '<span class="t-kw">const</span> <span class="t-var">formando</span> = {' },
+      { html: '  <span class="t-prop">nome</span>:      <span class="t-str">"Maycom Onofre"</span>,' },
+      { html: '  <span class="t-prop">curso</span>:     <span class="t-str">"ADS"</span>,' },
+      { html: '  <span class="t-prop">faculdade</span>: <span class="t-str">"Fatec Garça"</span>,' },
+      { html: '  <span class="t-prop">status</span>:    <span class="t-gold">"✅ Concluído"</span>,' },
+      { html: '  <span class="t-prop">festa</span>:     <span class="t-str">"29/08/2026 às 21h"</span>' },
+      { html: '};' },
+      { html: '' },
+      { html: '<span class="t-kw">function</span> <span class="t-fn">celebrar</span>(<span class="t-var">convidado</span>) {' },
+      { html: '  <span class="t-kw">return</span> <span class="t-str">`Feliz em ter você, ${<span class="t-var">convidado</span>}!`</span>;' },
+      { html: '}' },
+      { html: '' },
+      { html: '<span class="t-fn">console</span>.<span class="t-fn">log</span>(<span class="t-var">formando</span>.<span class="t-prop">status</span>);' },
+      { html: '<span class="t-comment">// 🎓 ✅ Concluído — missão cumprida!</span>' },
+    ];
+
+    const body = document.getElementById('terminalBody');
+    let lineIdx = 0;
+
+    function typeLine(html, done) {
+      // Para linhas sem texto visível (vazias ou só HTML), adiciona direto
+      const div = document.createElement('div');
+      div.innerHTML = html;
+      const plain = div.textContent;
+
+      if (!plain.trim() && !html.trim()) {
+        body.insertAdjacentHTML('beforeend', '<div>&nbsp;</div>');
+        done(); return;
+      }
+
+      // Insere a linha com o HTML já colorido, mas simula cursor
+      const lineEl = document.createElement('div');
+      lineEl.innerHTML = html + '<span class="t-cursor"></span>';
+      body.appendChild(lineEl);
+
+      // Remove cursor depois de um delay
+      setTimeout(() => {
+        lineEl.innerHTML = html;
+        done();
+      }, Math.max(60, plain.length * 22));
+    }
+
+    function nextLine() {
+      if (lineIdx >= lines.length) return;
+      typeLine(lines[lineIdx].html, () => {
+        lineIdx++;
+        setTimeout(nextLine, 80);
+      });
+    }
+
+    // Inicia quando a seção convite estiver visível
+    setTimeout(nextLine, 1200);
+  })();
 
   // Contadores de ingresso
   const qtdState = { adulto: 0, kids: 0, bebe: 0 };

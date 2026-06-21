@@ -418,6 +418,19 @@
       color: var(--gold-lt); letter-spacing: .05em;
     }
 
+    /* ── BOTÕES QTD ── */
+    .qty-btn {
+      width: 32px; height: 32px; border-radius: 50%;
+      border: 1.5px solid var(--border-foc);
+      background: var(--surface2); color: var(--gold-lt);
+      font-size: 1.1rem; font-weight: 700; cursor: pointer;
+      display: flex; align-items: center; justify-content: center;
+      transition: background var(--t) var(--ease), border-color var(--t) var(--ease);
+      flex-shrink: 0;
+    }
+    .qty-btn:hover { background: var(--gold-dim); border-color: var(--gold); color: #fff; }
+    .qty-btn:active { transform: scale(.92); }
+
     ::-webkit-scrollbar { width: 5px; }
     ::-webkit-scrollbar-track { background: var(--bg); }
     ::-webkit-scrollbar-thumb { background: var(--gold-dim); border-radius: 3px; }
@@ -694,15 +707,68 @@
           <input type="text" id="rsvpNome" name="nome" placeholder="Como você gostaria de ser chamado(a)?" required autocomplete="name" />
         </div>
 
+        <!-- Seletor de ingressos -->
         <div class="form-group">
-          <label for="rsvpQtd">Número de acompanhantes</label>
-          <select id="rsvpQtd" name="qtd">
-            <option value="0">Apenas eu (1 pessoa)</option>
-            <option value="1">+ 1 acompanhante (2 pessoas no total)</option>
-            <option value="2">+ 2 acompanhantes (3 pessoas no total)</option>
-            <option value="3">+ 3 acompanhantes (4 pessoas no total)</option>
-            <option value="4">+ 4 acompanhantes (5 pessoas no total)</option>
-          </select>
+          <label>Ingressos</label>
+          <div style="display:flex;flex-direction:column;gap:10px;">
+
+            <!-- Adulto -->
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 15px;">
+              <div>
+                <div style="font-size:.9rem;font-weight:600;color:var(--text);">🧑 Adulto</div>
+                <div style="font-size:.75rem;color:var(--gold);">R$ 350,00 por pessoa</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <button type="button" class="qty-btn" onclick="changeQty('adulto',-1)">−</button>
+                <span id="qty-adulto" style="min-width:24px;text-align:center;font-weight:700;font-size:1rem;">0</span>
+                <button type="button" class="qty-btn" onclick="changeQty('adulto',1)">+</button>
+              </div>
+            </div>
+
+            <!-- Kids -->
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 15px;">
+              <div>
+                <div style="font-size:.9rem;font-weight:600;color:var(--text);">👦 Kids 6–10 anos</div>
+                <div style="font-size:.75rem;color:var(--gold);">R$ 175,00 por pessoa</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <button type="button" class="qty-btn" onclick="changeQty('kids',-1)">−</button>
+                <span id="qty-kids" style="min-width:24px;text-align:center;font-weight:700;font-size:1rem;">0</span>
+                <button type="button" class="qty-btn" onclick="changeQty('kids',1)">+</button>
+              </div>
+            </div>
+
+            <!-- 0-5 anos -->
+            <div style="display:flex;align-items:center;justify-content:space-between;background:var(--bg3);border:1.5px solid var(--border);border-radius:var(--radius-sm);padding:12px 15px;">
+              <div>
+                <div style="font-size:.9rem;font-weight:600;color:var(--text);">👶 0–5 anos</div>
+                <div style="font-size:.75rem;color:#2ecc71;">Gratuito · apresentar documento</div>
+              </div>
+              <div style="display:flex;align-items:center;gap:10px;">
+                <button type="button" class="qty-btn" onclick="changeQty('bebe',-1)">−</button>
+                <span id="qty-bebe" style="min-width:24px;text-align:center;font-weight:700;font-size:1rem;">0</span>
+                <button type="button" class="qty-btn" onclick="changeQty('bebe',1)">+</button>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- Total -->
+        <div id="totalBox" style="display:none;background:rgba(201,168,76,.08);border:1.5px solid var(--border-foc);border-radius:var(--radius-sm);padding:14px 16px;margin-bottom:4px;">
+          <div style="display:flex;justify-content:space-between;font-size:.85rem;color:var(--text-soft);margin-bottom:6px;">
+            <span>Subtotal adultos</span><span id="sub-adulto">R$ 0,00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.85rem;color:var(--text-soft);margin-bottom:6px;">
+            <span>Subtotal kids</span><span id="sub-kids">R$ 0,00</span>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.85rem;color:#2ecc71;margin-bottom:10px;">
+            <span>Bebês (gratuito)</span><span id="sub-bebe">0 pessoa(s)</span>
+          </div>
+          <div style="border-top:1px solid var(--border);padding-top:10px;display:flex;justify-content:space-between;align-items:center;">
+            <span style="font-size:.85rem;font-weight:700;color:var(--text);">Total estimado</span>
+            <span id="total-valor" style="font-size:1.3rem;font-weight:700;color:var(--gold-lt);">R$ 0,00</span>
+          </div>
         </div>
 
         <div class="form-group">
@@ -756,7 +822,7 @@
   };
 
   const GALLERY_IMAGES = [
-  'Pasta_Foto/TCCFINAL.jpeg',
+  'Pasta_foto/TCCFINAL.jpeg',
   'Pasta_Foto/INICIO.jpeg',
   'Pasta_Foto/FOTO_CAIODANI.jpeg',
   'Pasta_Foto/FOTO_GRUPO.jpeg',
@@ -904,21 +970,47 @@
     if (e.key === 'ArrowRight') lbGo(+1);
   });
 
+  // Contadores de ingresso
+  const qtdState = { adulto: 0, kids: 0, bebe: 0 };
+  function changeQty(tipo, delta) {
+    qtdState[tipo] = Math.max(0, qtdState[tipo] + delta);
+    document.getElementById('qty-' + tipo).textContent = qtdState[tipo];
+    updateTotal();
+  }
+  function updateTotal() {
+    const subAdulto = qtdState.adulto * 350;
+    const subKids   = qtdState.kids   * 175;
+    const total     = subAdulto + subKids;
+    const fmt = v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
+    document.getElementById('sub-adulto').textContent = fmt(subAdulto);
+    document.getElementById('sub-kids').textContent   = fmt(subKids);
+    document.getElementById('sub-bebe').textContent   = qtdState.bebe + ' pessoa(s)';
+    document.getElementById('total-valor').textContent = fmt(total);
+    const totalBox = document.getElementById('totalBox');
+    const hasAny = qtdState.adulto + qtdState.kids + qtdState.bebe > 0;
+    totalBox.style.display = hasAny ? 'block' : 'none';
+  }
+
   // RSVP → WhatsApp
   document.getElementById('rsvpForm').addEventListener('submit', e => {
     e.preventDefault();
     const nome = document.getElementById('rsvpNome').value.trim();
-    const qtd  = parseInt(document.getElementById('rsvpQtd').value, 10);
     const msg  = document.getElementById('rsvpMsg').value.trim();
     if (!nome) { showToast('⚠️ Por favor, informe seu nome.'); document.getElementById('rsvpNome').focus(); return; }
-    const total = qtd + 1;
-    const pax = total === 1 ? '1 pessoa (só eu)' : `${total} pessoas (eu + ${qtd} acompanhante${qtd > 1 ? 's' : ''})`;
+    if (qtdState.adulto + qtdState.kids + qtdState.bebe === 0) {
+      showToast('⚠️ Adicione ao menos 1 ingresso.'); return;
+    }
+    const total = qtdState.adulto * 350 + qtdState.kids * 175;
+    const fmt = v => 'R$ ' + v.toLocaleString('pt-BR', { minimumFractionDigits: 2 });
     let txt = `🎓 *Confirmação de Presença — Formatura ADS · Fatec Garça 2026*\n\n`;
     txt += `👤 *Nome:* ${nome}\n`;
-    txt += `👥 *Presença:* ${pax}\n`;
     txt += `📅 *Data:* 29/08/2026 às 21h00\n`;
-    txt += `📍 *Local:* Monte Líbano — SP-294, km 412, Garça, SP\n`;
-    txt += `🎟️ *Ingressos:* Adulto R$ 350 · Kids 6–10 R$ 175 · 0–5 anos Gratuito`;
+    txt += `📍 *Local:* Monte Líbano — SP-294, km 412, Garça, SP\n\n`;
+    txt += `🎟️ *Ingressos:*\n`;
+    if (qtdState.adulto) txt += `  • Adulto × ${qtdState.adulto} = ${fmt(qtdState.adulto * 350)}\n`;
+    if (qtdState.kids)   txt += `  • Kids 6–10 × ${qtdState.kids} = ${fmt(qtdState.kids * 175)}\n`;
+    if (qtdState.bebe)   txt += `  • 0–5 anos × ${qtdState.bebe} = Gratuito\n`;
+    txt += `\n💰 *Total: ${fmt(total)}*`;
     if (msg) txt += `\n\n💬 *Mensagem:* ${msg}`;
     txt += `\n\n✅ _Confirmado via convite digital_`;
     window.open(`https://wa.me/${CONFIG.whatsapp}?text=${encodeURIComponent(txt)}`, '_blank', 'noopener,noreferrer');
